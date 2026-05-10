@@ -1,7 +1,6 @@
 import urllib.request
 import json
 import base64
-import os
 
 GITHUB_TOKEN = "TU_TOKEN_AQUI"
 REPO = "taxnfin/taxnfin-landing"
@@ -20,130 +19,168 @@ HTML = r"""<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TaxnFin — Suite Financiera Empresarial</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root {
-  --navy: #0E1628;
-  --navy-mid: #162040;
-  --navy-light: #1E2D52;
-  --teal: #2ABFA3;
-  --teal-dark: #1E9980;
-  --teal-glow: rgba(42,191,163,0.15);
-  --white: #F8F9FC;
-  --muted: #8A9BBF;
-  --border: rgba(42,191,163,0.2);
-  --card-bg: rgba(22,32,64,0.7);
-  --nemak: #4FC3F7;
-  --vitro: #81C784;
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-html { scroll-behavior: smooth; }
-body { background: var(--navy); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.7; overflow-x: hidden; }
-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1rem 3rem; background: rgba(14,22,40,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
-.nav-logo { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: var(--white); display: flex; align-items: center; gap: 8px; }
-.nav-logo span { color: var(--teal); }
-.nav-links { display: flex; gap: 2rem; align-items: center; }
-.nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 500; transition: color .2s; }
-.nav-links a:hover { color: var(--teal); }
-.btn-nav { background: var(--teal); color: var(--navy); padding: 8px 20px; border-radius: 6px; font-weight: 600; font-size: 14px; text-decoration: none; transition: all .2s; }
-.btn-nav:hover { background: var(--teal-dark); color: #fff; }
-.hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 3rem 80px; position: relative; overflow: hidden; }
-.hero-bg { position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse 60% 50% at 70% 40%, rgba(42,191,163,0.08) 0%, transparent 70%), radial-gradient(ellipse 40% 60% at 20% 80%, rgba(30,45,82,0.6) 0%, transparent 60%); }
-.hero-grid { position: absolute; inset: 0; z-index: 0; opacity: 0.04; background-image: linear-gradient(var(--teal) 1px, transparent 1px), linear-gradient(90deg, var(--teal) 1px, transparent 1px); background-size: 60px 60px; }
-.hero-content { position: relative; z-index: 1; max-width: 680px; }
-.hero-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--teal-glow); border: 1px solid var(--border); color: var(--teal); padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 2rem; }
-.hero-badge span { width: 7px; height: 7px; background: var(--teal); border-radius: 50%; animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
-h1 { font-family: 'DM Serif Display', serif; font-size: clamp(3rem, 6vw, 5.5rem); line-height: 1.05; color: var(--white); margin-bottom: 1.5rem; }
-h1 em { font-style: italic; color: var(--teal); }
-.hero-sub { font-size: 1.15rem; color: var(--muted); max-width: 520px; margin-bottom: 2.5rem; line-height: 1.8; }
-.hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; }
-.btn-primary { background: var(--teal); color: var(--navy); padding: 14px 28px; border-radius: 8px; font-weight: 700; font-size: 15px; text-decoration: none; transition: all .2s; display: inline-flex; align-items: center; gap: 8px; }
-.btn-primary:hover { background: var(--teal-dark); transform: translateY(-1px); }
-.btn-ghost { background: transparent; color: var(--white); padding: 14px 28px; border-radius: 8px; font-weight: 500; font-size: 15px; text-decoration: none; border: 1px solid rgba(255,255,255,0.2); transition: all .2s; }
-.btn-ghost:hover { border-color: var(--teal); color: var(--teal); }
-.hero-stats { position: absolute; right: 3rem; top: 50%; transform: translateY(-50%); z-index: 1; display: flex; flex-direction: column; gap: 1rem; }
-.stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.5rem; backdrop-filter: blur(8px); min-width: 180px; }
-.stat-num { font-family: 'DM Serif Display', serif; font-size: 2.2rem; color: var(--teal); line-height: 1; }
-.stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
-section { padding: 80px 3rem; }
-.section-label { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--teal); margin-bottom: 1rem; font-family: 'JetBrains Mono', monospace; }
-.section-title { font-family: 'DM Serif Display', serif; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.15; margin-bottom: 1rem; }
-.section-sub { color: var(--muted); max-width: 560px; line-height: 1.8; }
-.products { background: var(--navy-mid); }
-.products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
-.product-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; transition: all .3s; position: relative; overflow: hidden; }
-.product-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--teal), transparent); opacity: 0; transition: opacity .3s; }
-.product-card:hover { border-color: var(--teal); transform: translateY(-4px); }
-.product-card:hover::before { opacity: 1; }
-.product-icon { font-size: 2rem; margin-bottom: 1rem; }
-.product-name { font-weight: 700; font-size: 1.1rem; margin-bottom: .5rem; }
-.product-desc { color: var(--muted); font-size: .9rem; line-height: 1.7; margin-bottom: 1.2rem; }
-.product-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.2rem; }
-.tag { background: rgba(42,191,163,0.1); color: var(--teal); padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
-.badge-live { background: rgba(42,191,163,0.15); color: var(--teal); border: 1px solid var(--teal); font-size: 10px; padding: 2px 8px; border-radius: 100px; font-weight: 700; }
-.badge-soon { background: rgba(138,155,191,0.1); color: var(--muted); border: 1px solid rgba(138,155,191,0.2); font-size: 10px; padding: 2px 8px; border-radius: 100px; font-weight: 700; }
-.product-link { color: var(--teal); font-size: 13px; font-weight: 600; text-decoration: none; }
-.insights { background: var(--navy); }
-.insights-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem; flex-wrap: wrap; gap: 1rem; }
-.insight-featured { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; margin-bottom: 1.5rem; }
-.insight-featured-left { padding: 2.5rem; }
-.insight-featured-right { padding: 2.5rem; background: rgba(14,22,40,0.5); border-left: 1px solid var(--border); }
-.insight-edition { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--teal); font-family: 'JetBrains Mono', monospace; margin-bottom: 1rem; }
-.insight-title { font-family: 'DM Serif Display', serif; font-size: 1.9rem; line-height: 1.2; margin-bottom: 1rem; }
-.insight-desc { color: var(--muted); font-size: .9rem; line-height: 1.8; margin-bottom: 1.5rem; }
-.author-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), var(--navy-light)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: var(--navy); }
-.author-name { font-weight: 600; color: var(--white); font-size: 12px; }
-.author-title { color: var(--muted); font-size: 11px; }
-.vs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-.vs-company-name { font-weight: 700; font-size: 1rem; }
-.metric-row { margin-bottom: 1.2rem; }
-.metric-label { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 6px; text-transform: uppercase; }
-.bar-track { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; margin-bottom: 3px; }
-.bar-fill { height: 100%; border-radius: 3px; }
-.bar-nemak { background: var(--nemak); }
-.bar-vitro { background: var(--vitro); }
-.bar-val { font-size: 11px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
-.val-nemak { color: var(--nemak); }
-.val-vitro { color: var(--vitro); }
-.winner-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; }
-.w-nemak { background: rgba(79,195,247,0.15); color: var(--nemak); }
-.w-vitro { background: rgba(129,199,132,0.15); color: var(--vitro); }
-.insight-takeaway { margin-top: 1.5rem; padding: 1rem; background: rgba(42,191,163,0.06); border-left: 2px solid var(--teal); border-radius: 0 8px 8px 0; }
-.insight-takeaway p { font-size: .85rem; color: var(--muted); line-height: 1.7; }
-.insight-takeaway strong { color: var(--white); }
-.subscribe-strip { background: linear-gradient(135deg, var(--navy-light), var(--navy-mid)); border: 1px solid var(--border); border-radius: 16px; padding: 2rem 2.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; margin-top: 1.5rem; }
-.subscribe-strip h3 { font-family: 'DM Serif Display', serif; font-size: 1.4rem; margin-bottom: .3rem; }
-.subscribe-strip p { color: var(--muted); font-size: .88rem; }
-.subscribe-form { display: flex; gap: .75rem; flex-wrap: wrap; }
-.subscribe-form input { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; color: var(--white); font-size: 14px; outline: none; width: 240px; font-family: 'DM Sans', sans-serif; }
-.subscribe-form input:focus { border-color: var(--teal); }
-.subscribe-form button { background: var(--teal); color: var(--navy); border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-.why { background: var(--navy-mid); }
-.why-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
-.why-item { padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(42,191,163,0.1); }
-.why-icon { font-size: 1.8rem; margin-bottom: .8rem; }
-.why-title { font-weight: 700; margin-bottom: .4rem; }
-.why-desc { color: var(--muted); font-size: .88rem; line-height: 1.7; }
-.cta-final { background: var(--navy); text-align: center; padding: 100px 3rem; }
-.cta-final h2 { font-family: 'DM Serif Display', serif; font-size: clamp(2rem, 4vw, 3.2rem); margin-bottom: 1rem; }
-.cta-final p { color: var(--muted); max-width: 500px; margin: 0 auto 2.5rem; }
-.cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-footer { background: var(--navy-mid); border-top: 1px solid var(--border); padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
-.footer-logo { font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--white); }
-.footer-logo span { color: var(--teal); }
-.footer-links { display: flex; gap: 1.5rem; }
-.footer-links a { color: var(--muted); text-decoration: none; font-size: 13px; }
-.footer-links a:hover { color: var(--teal); }
-.footer-copy { color: var(--muted); font-size: 12px; }
-@media(max-width:900px){ nav { padding: 1rem 1.5rem; } .hero { padding: 100px 1.5rem 60px; } .hero-stats { display: none; } .insight-featured { grid-template-columns: 1fr; } .insight-featured-right { border-left: none; border-top: 1px solid var(--border); } section { padding: 60px 1.5rem; } footer { padding: 1.5rem; flex-direction: column; text-align: center; } }
+:root{--navy:#0E1628;--navy-mid:#162040;--navy-light:#1E2D52;--teal:#2ABFA3;--teal-dark:#1E9980;--teal-glow:rgba(42,191,163,0.15);--white:#F8F9FC;--muted:#8A9BBF;--border:rgba(42,191,163,0.2);--card:rgba(22,32,64,0.7);--nemak:#4FC3F7;--vitro:#81C784;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--navy);color:var(--white);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.7;overflow-x:hidden;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;background:rgba(14,22,40,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+.logo{font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--white);}
+.logo span{color:var(--teal);}
+.nav-links{display:flex;gap:2rem;align-items:center;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+.nav-links a:hover{color:var(--teal);}
+.btn-nav{background:var(--teal);color:var(--navy);padding:8px 20px;border-radius:6px;font-weight:600;font-size:14px;text-decoration:none;}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;padding:120px 3rem 80px;position:relative;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 70% 40%,rgba(42,191,163,0.08),transparent 70%),radial-gradient(ellipse 40% 60% at 20% 80%,rgba(30,45,82,0.6),transparent 60%);}
+.hero-grid{position:absolute;inset:0;opacity:.04;background-image:linear-gradient(var(--teal) 1px,transparent 1px),linear-gradient(90deg,var(--teal) 1px,transparent 1px);background-size:60px 60px;}
+.hero-content{position:relative;z-index:1;max-width:680px;}
+.badge{display:inline-flex;align-items:center;gap:8px;background:var(--teal-glow);border:1px solid var(--border);color:var(--teal);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2rem;}
+.dot{width:7px;height:7px;background:var(--teal);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+h1{font-family:'DM Serif Display',serif;font-size:clamp(3rem,6vw,5.5rem);line-height:1.05;margin-bottom:1.5rem;}
+h1 em{font-style:italic;color:var(--teal);}
+.hero-sub{font-size:1.15rem;color:var(--muted);max-width:520px;margin-bottom:2.5rem;line-height:1.8;}
+.hero-ctas{display:flex;gap:1rem;flex-wrap:wrap;}
+.btn-primary{background:var(--teal);color:var(--navy);padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;transition:all .2s;}
+.btn-primary:hover{background:var(--teal-dark);transform:translateY(-1px);}
+.btn-ghost{background:transparent;color:var(--white);padding:14px 28px;border-radius:8px;font-weight:500;font-size:15px;text-decoration:none;border:1px solid rgba(255,255,255,0.2);transition:all .2s;}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal);}
+.hero-stats{position:absolute;right:3rem;top:50%;transform:translateY(-50%);z-index:1;display:flex;flex-direction:column;gap:1rem;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.5rem;backdrop-filter:blur(8px);min-width:180px;}
+.stat-num{font-family:'DM Serif Display',serif;font-size:2.2rem;color:var(--teal);line-height:1;}
+.stat-label{font-size:12px;color:var(--muted);margin-top:4px;}
+
+/* SECTIONS */
+section{padding:80px 3rem;}
+.sec-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:1rem;font-family:'JetBrains Mono',monospace;}
+.sec-title{font-family:'DM Serif Display',serif;font-size:clamp(2rem,4vw,3rem);line-height:1.15;margin-bottom:1rem;}
+.sec-sub{color:var(--muted);max-width:560px;line-height:1.8;}
+
+/* PRODUCTS */
+.products{background:var(--navy-mid);}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;margin-top:3rem;}
+.product-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;transition:all .3s;position:relative;overflow:hidden;}
+.product-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--teal),transparent);opacity:0;transition:opacity .3s;}
+.product-card:hover{border-color:var(--teal);transform:translateY(-4px);}
+.product-card:hover::before{opacity:1;}
+.prod-icon{font-size:2rem;margin-bottom:1rem;}
+.prod-name{font-weight:700;font-size:1.1rem;margin-bottom:.5rem;}
+.prod-desc{color:var(--muted);font-size:.9rem;line-height:1.7;margin-bottom:1.2rem;}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.2rem;}
+.tag{background:rgba(42,191,163,0.1);color:var(--teal);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace;}
+.bl{background:rgba(42,191,163,0.15);color:var(--teal);border:1px solid var(--teal);font-size:10px;padding:2px 8px;border-radius:100px;font-weight:700;}
+.bs{background:rgba(138,155,191,0.1);color:var(--muted);border:1px solid rgba(138,155,191,0.2);font-size:10px;padding:2px 8px;border-radius:100px;font-weight:700;}
+.prod-link{color:var(--teal);font-size:13px;font-weight:600;text-decoration:none;}
+
+/* INSIGHTS */
+.insights{background:var(--navy);}
+.ins-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;}
+
+/* COMPANY PROFILES */
+.profiles{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;}
+.profile-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;}
+.profile-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;}
+.company-name{font-family:'DM Serif Display',serif;font-size:1.6rem;}
+.company-tag{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.profile-desc{color:var(--muted);font-size:.88rem;line-height:1.8;margin-bottom:1.2rem;}
+.profile-kpis{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;}
+.kpi-box{background:rgba(14,22,40,0.5);border-radius:8px;padding:.8rem;border:1px solid rgba(255,255,255,0.05);}
+.kpi-val{font-family:'DM Serif Display',serif;font-size:1.4rem;line-height:1;}
+.kpi-lbl{font-size:11px;color:var(--muted);margin-top:3px;font-family:'JetBrains Mono',monospace;}
+.profile-insight{margin-top:1.2rem;padding:.8rem 1rem;border-left:2px solid var(--teal);background:rgba(42,191,163,0.05);border-radius:0 8px 8px 0;font-size:.82rem;color:var(--muted);line-height:1.7;}
+.profile-insight strong{color:var(--white);}
+
+/* ROUND FINANCIERO */
+.round{background:var(--navy-mid);}
+.round-intro{color:var(--muted);font-size:.95rem;line-height:1.8;max-width:700px;margin-bottom:2rem;}
+.vs-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem;}
+.vs-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;}
+.vs-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:1.5rem;color:var(--muted);}
+.metric-row{margin-bottom:1.4rem;}
+.metric-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.metric-name{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.05em;}
+.metric-winner{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;}
+.wn{background:rgba(79,195,247,0.15);color:var(--nemak);}
+.wv{background:rgba(129,199,132,0.15);color:var(--vitro);}
+.bar-wrap{margin-bottom:3px;}
+.bar-track{height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;transition:width 1.2s cubic-bezier(.4,0,.2,1);}
+.bn{background:linear-gradient(90deg,var(--nemak),rgba(79,195,247,0.6));}
+.bv{background:linear-gradient(90deg,var(--vitro),rgba(129,199,132,0.6));}
+.bar-vals{display:flex;justify-content:space-between;margin-top:3px;}
+.vn{font-size:12px;font-weight:600;color:var(--nemak);font-family:'JetBrains Mono',monospace;}
+.vv{font-size:12px;font-weight:600;color:var(--vitro);font-family:'JetBrains Mono',monospace;}
+
+/* SCOREBOARD */
+.scoreboard{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:1.5rem;}
+.score-header{display:grid;grid-template-columns:2fr 1fr 1fr;background:rgba(14,22,40,0.8);padding:.8rem 1.5rem;}
+.score-header span{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-family:'JetBrains Mono',monospace;text-align:center;}
+.score-header span:first-child{text-align:left;}
+.score-row{display:grid;grid-template-columns:2fr 1fr 1fr;padding:.8rem 1.5rem;border-top:1px solid rgba(255,255,255,0.04);align-items:center;}
+.score-row:nth-child(odd){background:rgba(255,255,255,0.015);}
+.score-metric{font-size:13px;color:var(--white);}
+.score-val{font-size:13px;text-align:center;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.score-val.win{background:rgba(42,191,163,0.15);color:var(--teal);border-radius:4px;padding:2px 6px;}
+
+/* BOTTOM LINE */
+.bottom{background:var(--navy);}
+.bl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-top:2rem;}
+.bl-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;}
+.bl-icon{font-size:1.5rem;margin-bottom:.8rem;}
+.bl-audience{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--teal);font-family:'JetBrains Mono',monospace;margin-bottom:.5rem;}
+.bl-title{font-weight:600;font-size:.95rem;margin-bottom:.5rem;}
+.bl-text{color:var(--muted);font-size:.85rem;line-height:1.7;}
+.takeaway-box{background:linear-gradient(135deg,rgba(42,191,163,0.08),rgba(22,32,64,0.5));border:1px solid var(--border);border-radius:12px;padding:1.5rem 2rem;margin-top:1.5rem;}
+.takeaway-box p{color:var(--muted);font-size:.9rem;line-height:1.8;}
+.takeaway-box strong{color:var(--white);}
+
+/* SUBSCRIBE */
+.subscribe-strip{background:linear-gradient(135deg,var(--navy-light),var(--navy-mid));border:1px solid var(--border);border-radius:16px;padding:2rem 2.5rem;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;margin-top:2rem;}
+.subscribe-strip h3{font-family:'DM Serif Display',serif;font-size:1.4rem;margin-bottom:.3rem;}
+.subscribe-strip p{color:var(--muted);font-size:.88rem;}
+.sub-form{display:flex;gap:.75rem;flex-wrap:wrap;}
+.sub-form input{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:10px 16px;color:var(--white);font-size:14px;outline:none;width:240px;font-family:'DM Sans',sans-serif;}
+.sub-form input:focus{border-color:var(--teal);}
+.sub-form button{background:var(--teal);color:var(--navy);border:none;padding:10px 20px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.sub-form button:hover{background:var(--teal-dark);}
+
+/* WHY */
+.why{background:var(--navy-mid);}
+.why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;margin-top:3rem;}
+.why-item{padding:1.5rem;border-radius:12px;border:1px solid rgba(42,191,163,0.1);}
+.why-icon{font-size:1.8rem;margin-bottom:.8rem;}
+.why-title{font-weight:700;margin-bottom:.4rem;}
+.why-desc{color:var(--muted);font-size:.88rem;line-height:1.7;}
+
+/* CTA */
+.cta-final{background:var(--navy);text-align:center;padding:100px 3rem;}
+.cta-final h2{font-family:'DM Serif Display',serif;font-size:clamp(2rem,4vw,3.2rem);margin-bottom:1rem;}
+.cta-final p{color:var(--muted);max-width:500px;margin:0 auto 2.5rem;}
+.cta-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+
+/* FOOTER */
+footer{background:var(--navy-mid);border-top:1px solid var(--border);padding:2rem 3rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
+.foot-logo{font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--white);}
+.foot-logo span{color:var(--teal);}
+.foot-links{display:flex;gap:1.5rem;}
+.foot-links a{color:var(--muted);text-decoration:none;font-size:13px;transition:color .2s;}
+.foot-links a:hover{color:var(--teal);}
+.foot-copy{color:var(--muted);font-size:12px;}
+
+@media(max-width:1024px){.profiles{grid-template-columns:1fr;}.vs-grid{grid-template-columns:1fr;}.bl-grid{grid-template-columns:1fr;}}
+@media(max-width:900px){nav{padding:1rem 1.5rem;}.hero{padding:100px 1.5rem 60px;}.hero-stats{display:none;}section{padding:60px 1.5rem;}footer{padding:1.5rem;flex-direction:column;text-align:center;}.score-row,.score-header{grid-template-columns:1.5fr 1fr 1fr;}}
 </style>
 </head>
 <body>
 
 <nav>
-  <div class="nav-logo">Taxn<span>fin</span></div>
+  <div class="logo">Taxn<span>fin</span></div>
   <div class="nav-links">
     <a href="#productos">Productos</a>
     <a href="#insights">Insights</a>
@@ -153,11 +190,12 @@ footer { background: var(--navy-mid); border-top: 1px solid var(--border); paddi
   </div>
 </nav>
 
+<!-- HERO -->
 <section class="hero">
   <div class="hero-bg"></div>
   <div class="hero-grid"></div>
   <div class="hero-content">
-    <div class="hero-badge"><span></span> Suite CFO Digital · Mexico</div>
+    <div class="badge"><span class="dot"></span>Suite CFO Digital · Mexico</div>
     <h1>Finanzas empresariales con <em>inteligencia</em></h1>
     <p class="hero-sub">TaxnFin es la plataforma para directores financieros que necesitan control real — flujo de efectivo, cumplimiento fiscal, CRM y materialidad AML en un solo lugar.</p>
     <div class="hero-ctas">
@@ -173,143 +211,256 @@ footer { background: var(--navy-mid); border-top: 1px solid var(--border); paddi
   </div>
 </section>
 
+<!-- PRODUCTOS -->
 <section class="products" id="productos">
-  <div class="section-label">// Nuestra suite</div>
-  <h2 class="section-title">Una plataforma, cuatro soluciones</h2>
-  <p class="section-sub">Cada producto resuelve un problema critico de tu empresa. Todos integrados, todos en tiempo real.</p>
+  <div class="sec-label">// Nuestra suite</div>
+  <h2 class="sec-title">Una plataforma, cuatro soluciones</h2>
+  <p class="sec-sub">Cada producto resuelve un problema critico de tu empresa. Todos integrados, todos en tiempo real.</p>
   <div class="products-grid">
     <div class="product-card">
-      <div class="product-icon">💰</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
-        <div class="product-name">TaxnFin Cashflow</div>
-        <span class="badge-live">EN VIVO</span>
-      </div>
-      <p class="product-desc">Proyecciones de flujo de efectivo a 13 semanas rolling. Anticipa problemas de liquidez antes de que ocurran. Multimoneda y multi-empresa.</p>
-      <div class="product-tags"><span class="tag">13S rolling</span><span class="tag">Multimoneda</span><span class="tag">Alertas</span><span class="tag">IA Ejecutiva</span></div>
-      <a href="https://cashflow.taxnfin.com" class="product-link">Acceder</a>
+      <div class="prod-icon">💰</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem"><div class="prod-name">TaxnFin Cashflow</div><span class="bl">EN VIVO</span></div>
+      <p class="prod-desc">Proyecciones de flujo de efectivo a 13 semanas rolling. Anticipa problemas de liquidez antes de que ocurran. Multimoneda y multi-empresa.</p>
+      <div class="tags"><span class="tag">13S rolling</span><span class="tag">Multimoneda</span><span class="tag">Alertas</span><span class="tag">IA Ejecutiva</span></div>
+      <a href="https://cashflow.taxnfin.com" class="prod-link">Acceder →</a>
     </div>
     <div class="product-card">
-      <div class="product-icon">🏛️</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
-        <div class="product-name">DonatariaSAT</div>
-        <span class="badge-live">EN VIVO</span>
-      </div>
-      <p class="product-desc">Cumplimiento fiscal integral para donatarias autorizadas. Gestiona donantes, emite CFDIs y cumple con el Titulo III de la LISR.</p>
-      <div class="product-tags"><span class="tag">CFDI donativos</span><span class="tag">Control 5%</span><span class="tag">PLD</span></div>
-      <a href="https://donatariasat.taxnfin.com" class="product-link">Acceder</a>
+      <div class="prod-icon">🏛️</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem"><div class="prod-name">DonatariaSAT</div><span class="bl">EN VIVO</span></div>
+      <p class="prod-desc">Cumplimiento fiscal integral para donatarias autorizadas. Gestiona donantes, emite CFDIs y cumple con el Titulo III de la LISR.</p>
+      <div class="tags"><span class="tag">CFDI donativos</span><span class="tag">Control 5%</span><span class="tag">PLD</span></div>
+      <a href="https://donatariasat.taxnfin.com" class="prod-link">Acceder →</a>
     </div>
     <div class="product-card" style="opacity:.75">
-      <div class="product-icon">📊</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
-        <div class="product-name">CRM / QuotePro</div>
-        <span class="badge-soon">PROXIMAMENTE</span>
-      </div>
-      <p class="product-desc">CRM con cotizaciones profesionales, pipeline de ventas y costeo integrado para empresas que necesitan control comercial y financiero.</p>
-      <div class="product-tags"><span class="tag">Cotizaciones PDF</span><span class="tag">Pipeline</span><span class="tag">Costeo</span></div>
+      <div class="prod-icon">📊</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem"><div class="prod-name">CRM / QuotePro</div><span class="bs">PROXIMAMENTE</span></div>
+      <p class="prod-desc">CRM con cotizaciones profesionales, pipeline de ventas y costeo integrado para empresas que necesitan control comercial y financiero.</p>
+      <div class="tags"><span class="tag">Cotizaciones PDF</span><span class="tag">Pipeline</span><span class="tag">Costeo</span></div>
     </div>
     <div class="product-card" style="opacity:.75">
-      <div class="product-icon">🛡️</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
-        <div class="product-name">AML Materialidad 360</div>
-        <span class="badge-soon">PROXIMAMENTE</span>
-      </div>
-      <p class="product-desc">Materialidad fiscal y analisis de riesgo AML. Validacion RFC SAT, reportes de cumplimiento y escenarios de riesgo para actividades vulnerables.</p>
-      <div class="product-tags"><span class="tag">Validacion RFC</span><span class="tag">Compliance</span><span class="tag">Riesgo</span></div>
+      <div class="prod-icon">🛡️</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem"><div class="prod-name">AML Materialidad 360</div><span class="bs">PROXIMAMENTE</span></div>
+      <p class="prod-desc">Materialidad fiscal y analisis de riesgo AML. Validacion RFC SAT, reportes de cumplimiento y escenarios de riesgo para actividades vulnerables.</p>
+      <div class="tags"><span class="tag">Validacion RFC</span><span class="tag">Compliance</span><span class="tag">Riesgo</span></div>
     </div>
   </div>
 </section>
 
+<!-- INSIGHTS: PERFILES -->
 <section class="insights" id="insights">
-  <div class="insights-header">
+  <div class="ins-header">
     <div>
-      <div class="section-label">// TaxnFin Insights</div>
-      <h2 class="section-title">Finanzas que <em style="font-family:'DM Serif Display',serif;font-style:italic;color:var(--teal)">si importan</em></h2>
-      <p class="section-sub">Analisis financiero de empresas mexicanas. Cada edicion, las metricas que mueven el dinero — explicadas por una CFO con 30 anos en el campo.</p>
+      <div class="sec-label">// TaxnFin Insights · Edicion #001 · Mayo 2026</div>
+      <h2 class="sec-title">🏭 Nemak vs Vitro</h2>
+      <p class="sec-sub">Dos gigantes regiomontanos. Dos apuestas distintas ante el nearshoring. Analizamos sus finanzas con las mismas metricas que usamos en TaxnFin.</p>
     </div>
   </div>
-  <div class="insight-featured">
-    <div class="insight-featured-left">
-      <div class="insight-edition">Edicion #001 · Mayo 2026 · Manufactura y Nearshoring</div>
-      <h3 class="insight-title">Nemak vs Vitro<br><span style="font-size:1rem;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:400">Dos gigantes regiomontanos, dos apuestas distintas</span></h3>
-      <p class="insight-desc">Con el nearshoring redibujando el mapa industrial de Mexico, sus historias financieras son mas distintas que nunca. Una empresa con US$4.9B en ingresos enfrenta la mayor transicion de su industria en 100 anos. La otra lleva cuatro anos en reestructura silenciosa con resultados sorprendentes.</p>
-      <div style="margin-bottom:1.5rem">
-        <p style="font-size:.85rem;color:var(--muted);margin-bottom:.8rem">En esta edicion:</p>
-        <div style="display:flex;flex-direction:column;gap:.4rem">
-          <div style="font-size:.85rem;display:flex;gap:.5rem"><span style="color:var(--teal)">→</span> El dilema de Nemak: ICE vs vehiculo electrico</div>
-          <div style="font-size:.85rem;display:flex;gap:.5rem"><span style="color:var(--teal)">→</span> Vitro: balance limpio que el mercado subestima</div>
-          <div style="font-size:.85rem;display:flex;gap:.5rem"><span style="color:var(--teal)">→</span> Round financiero: 10 metricas cara a cara</div>
-          <div style="font-size:.85rem;display:flex;gap:.5rem"><span style="color:var(--teal)">→</span> The Bottom Line: quien gana el nearshoring</div>
+
+  <!-- PERFILES -->
+  <div class="profiles">
+
+    <div class="profile-card">
+      <div class="profile-header">
+        <div>
+          <div class="company-name" style="color:var(--nemak)">NEMAK</div>
+          <div class="company-tag">BMV: NEMAK · Manufactura automotriz · Monterrey</div>
         </div>
+        <div style="text-align:right;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;">40 plantas<br>14 paises</div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div class="author-avatar">KV</div>
-        <div><div class="author-name">TaxnFin </div><div class="author-title">Informaciòn Financiera · CFO · Finanzas corporativas</div></div>
+      <p class="profile-desc">Proveedor global lider de componentes de aluminio para la industria automotriz. Sus clientes incluyen Ford, GM, BMW, Volkswagen, Stellantis y practicamente cualquier armadora global. En 2024 enfrenta su mayor reto: la transicion del motor de combustion al vehiculo electrico.</p>
+      <div class="profile-kpis">
+        <div class="kpi-box"><div class="kpi-val" style="color:var(--nemak)">US$4,907M</div><div class="kpi-lbl">Ingresos 2024</div></div>
+        <div class="kpi-box"><div class="kpi-val" style="color:var(--nemak)">US$633M</div><div class="kpi-lbl">EBITDA 2024</div></div>
+        <div class="kpi-box"><div class="kpi-val" style="color:var(--nemak)">12.9%</div><div class="kpi-lbl">Margen EBITDA</div></div>
+        <div class="kpi-box"><div class="kpi-val" style="color:var(--nemak)">US$25M</div><div class="kpi-lbl">Utilidad neta</div></div>
+      </div>
+      <div class="profile-insight"><strong>El dilema:</strong> Un EBITDA de US$633M con utilidad neta de solo US$25M revela una sola cosa — la deuda y la depreciacion se comen el resultado. Margen neto de 0.5% no tiene donde esconderse. Con deuda neta de US$1,532M y la transicion VE acelerandose, el margen de maniobra es estrecho. En 2024 gano contratos nuevos por US$460M anuales — 80% ICE, 20% VE. La apuesta: ser ambidiestro.</div>
+    </div>
+
+    <div class="profile-card">
+      <div class="profile-header">
+        <div>
+          <div class="company-name" style="color:var(--vitro)">VITRO</div>
+          <div class="company-tag">BMV: VITROA · Vidrio plano y quimicos · San Pedro</div>
+        </div>
+        <div style="text-align:right;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;">Fundada 1909<br>Mexico y EEUU</div>
+      </div>
+      <p class="profile-desc">Una de las empresas mas antiguas de Monterrey, hoy concentrada en vidrio plano (arquitectonico y automotriz) y quimicos. Lleva cuatro anos en reestructura silenciosa. Su balance es lo que mas sorprende a quien lo analiza con detenimiento.</p>
+      <div class="profile-kpis">
+        <div class="kpi-box"><div class="kpi-val" style="color:var(--vitro)">~US$282M</div><div class="kpi-lbl">Ingresos 2024</div></div>
+        <div class="kpi-box"><div class="kpi-val" style="color:var(--vitro)">US$81M</div><div class="kpi-lbl">Deuda neta</div></div>
+        <div class="kpi-box"><div class="kpi-val" style="color:var(--vitro)">40.7%</div><div class="kpi-lbl">Margen bruto</div></div>
+        <div class="kpi-box"><div class="kpi-val" style="color:var(--vitro)">19.8%</div><div class="kpi-lbl">ROE</div></div>
+      </div>
+      <div class="profile-insight"><strong>Lo que el mercado subestima:</strong> Margen bruto del 40.7% es extraordinario para manufactura. ROE de 19.8% en plena reestructura es la senal mas clara de que el modelo funciona. Deuda neta de solo US$81M vs US$1,532M de Nemak — el balance mas solido del sector. Y el nearshoring le trae demanda directa: cada planta nueva en NL necesita vidrio plano.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ROUND FINANCIERO -->
+<section class="round" id="round">
+  <div class="sec-label">// Round financiero</div>
+  <h2 class="sec-title">Las 10 metricas que importan</h2>
+  <p class="round-intro">Comparamos a ambas empresas con las mismas metricas que calcula TaxnFin automaticamente para cualquier empresa — desde sus estados financieros reales conectados a Alegra, Contalink o SAT.</p>
+
+  <div class="vs-grid">
+    <div class="vs-card">
+      <div class="vs-title">Rentabilidad</div>
+
+      <div class="metric-row">
+        <div class="metric-header"><span class="metric-name">Ingresos 2024</span><span class="metric-winner wn">↑ Nemak</span></div>
+        <div class="bar-wrap"><div class="bar-track"><div class="bar-fill bn" style="width:0%" data-w="100"></div></div></div>
+        <div class="bar-wrap"><div class="bar-track"><div class="bar-fill bv" style="width:0%" data-w="6"></div></div></div>
+        <div class="bar-vals"><span class="vn">US$4,907M</span><span class="vv">US$282M</span></div>
+      </div>
+
+      <div class="metric-row">
+        <div class="metric-header"><span class="metric-name">EBITDA 2024</span><span class="metric-winner wn">↑ Nemak</span></div>
+        <div class="bar-wrap"><div class="bar-track"><div class="bar-fill bn" style="width:0%" data-w="100"></div></div></div>
+        <div class="bar-wrap"><div class="bar-track"><div class="bar-fill bv" style="width:0%" data-w="6"></div></div></div>
+        <div class="bar-vals"><span class="vn">US$633M</span><span class="vv">US$37M</span></div>
+      </div>
+
+      <div class="metric-row">
+        <div class="metric-header"><span class="metric-name">Margen EBITDA</span><span class="metric-winner wv">↑ Vitro</span></div>
+        <div class="bar-wrap"><div class="bar-track"><div class="bar-fill bn" style="width:0%" data-w="62"></div></div></div>
+        <div class="bar-wrap"><div class="bar-track"><div class="bar-fill bv" style="width:0%" data-w="100"></div></div></div>
+        <div class="bar-vals"><span class="vn">12.9%</span><span class="vv">~13%</span></div>
+      </div>
+
+      <div class="metric-row">
+        <div class="metric-header"><span class="metric-name">Margen bruto</span><span class="metric-winner wv">↑ Vitro</span></div>
+        <div class="bar-wrap"><div class="bar-track"><div class="bar-fill bn" style="width:0%" data-w="37"></div></div></div>
+        <div class="bar-wrap"><div class="bar-track"><div class="bar-fill bv" style="width:0%" data-w="100"></div></div></div>
+        <div class="bar-vals"><span class="vn">~15%</span><span class="vv">40.7%</span></div>
+      </div>
+
+      <div class="metric-row">
+        <div class="metric-header"><span class="metric-name">Margen neto</span><span class="metric-winner wv">↑ Vitro</span></div>
+        <div class="bar-wrap"><div class="bar-track"><div class="bar-fill bn" style="width:0%" data-w="3"></div></div></div>
+        <div class="bar-wrap"><div class="bar-track"><div class="bar-fill bv" style="width:0%" data-w="100"></div></div></div>
+        <div class="bar-vals"><span class="vn">0.5%</span><span class="vv">~46%*</span></div>
       </div>
     </div>
-    <div class="insight-featured-right">
-      <div class="vs-header">
-        <div style="text-align:center"><div class="vs-company-name" style="color:var(--nemak)">NEMAK</div><div style="font-size:11px;color:var(--muted)">BMV: NEMAK</div></div>
-        <div style="color:var(--muted);font-size:1.2rem">VS</div>
-        <div style="text-align:center"><div class="vs-company-name" style="color:var(--vitro)">VITRO</div><div style="font-size:11px;color:var(--muted)">BMV: VITROA</div></div>
-      </div>
+
+    <div class="vs-card">
+      <div class="vs-title">Solidez de balance y retorno</div>
+
       <div class="metric-row">
-        <div style="display:flex;justify-content:space-between;margin-bottom:5px"><div class="metric-label">Ingresos 2024</div><span class="winner-badge w-nemak">↑ Nemak</span></div>
-        <div class="bar-track"><div class="bar-fill bar-nemak" style="width:100%"></div></div>
-        <div class="bar-track"><div class="bar-fill bar-vitro" style="width:6%"></div></div>
-        <div style="display:flex;justify-content:space-between"><span class="bar-val val-nemak">US$4,907M</span><span class="bar-val val-vitro">US$282M</span></div>
+        <div class="metric-header"><span class="metric-name">Deuda neta (menor=mejor)</span><span class="metric-winner wv">↓ Vitro</span></div>
+        <div class="bar-wrap"><div class="bar-track"><div class="bar-fill bn" style="width:0%" data-w="100"></div></div></div>
+        <div class="bar-wrap"><div class="bar-track"><div class="bar-fill bv" style="width:0%" data-w="5"></div></div></div>
+        <div class="bar-vals"><span class="vn">US$1,532M</span><span class="vv">US$81M</span></div>
       </div>
+
       <div class="metric-row">
-        <div style="display:flex;justify-content:space-between;margin-bottom:5px"><div class="metric-label">Margen bruto</div><span class="winner-badge w-vitro">↑ Vitro</span></div>
-        <div class="bar-track"><div class="bar-fill bar-nemak" style="width:37%"></div></div>
-        <div class="bar-track"><div class="bar-fill bar-vitro" style="width:100%"></div></div>
-        <div style="display:flex;justify-content:space-between"><span class="bar-val val-nemak">~15%</span><span class="bar-val val-vitro">40.7%</span></div>
+        <div class="metric-header"><span class="metric-name">Deuda / EBITDA</span><span class="metric-winner wv">↓ Vitro</span></div>
+        <div class="bar-wrap"><div class="bar-track"><div class="bar-fill bn" style="width:0%" data-w="92"></div></div></div>
+        <div class="bar-wrap"><div class="bar-track"><div class="bar-fill bv" style="width:0%" data-w="85"></div></div></div>
+        <div class="bar-vals"><span class="vn">2.4x</span><span class="vv">2.2x</span></div>
       </div>
+
       <div class="metric-row">
-        <div style="display:flex;justify-content:space-between;margin-bottom:5px"><div class="metric-label">Deuda neta</div><span class="winner-badge w-vitro">↓ Vitro</span></div>
-        <div class="bar-track"><div class="bar-fill bar-nemak" style="width:100%"></div></div>
-        <div class="bar-track"><div class="bar-fill bar-vitro" style="width:5%"></div></div>
-        <div style="display:flex;justify-content:space-between"><span class="bar-val val-nemak">US$1,532M</span><span class="bar-val val-vitro">US$81M</span></div>
+        <div class="metric-header"><span class="metric-name">Cobertura de intereses</span><span class="metric-winner wn">↑ Nemak</span></div>
+        <div class="bar-wrap"><div class="bar-track"><div class="bar-fill bn" style="width:0%" data-w="100"></div></div></div>
+        <div class="bar-wrap"><div class="bar-track"><div class="bar-fill bv" style="width:0%" data-w="60"></div></div></div>
+        <div class="bar-vals"><span class="vn">4.9x</span><span class="vv">N/D</span></div>
       </div>
+
       <div class="metric-row">
-        <div style="display:flex;justify-content:space-between;margin-bottom:5px"><div class="metric-label">ROE</div><span class="winner-badge w-vitro">↑ Vitro</span></div>
-        <div class="bar-track"><div class="bar-fill bar-nemak" style="width:3%"></div></div>
-        <div class="bar-track"><div class="bar-fill bar-vitro" style="width:100%"></div></div>
-        <div style="display:flex;justify-content:space-between"><span class="bar-val val-nemak">0.5%</span><span class="bar-val val-vitro">19.8%</span></div>
+        <div class="metric-header"><span class="metric-name">ROE</span><span class="metric-winner wv">↑ Vitro</span></div>
+        <div class="bar-wrap"><div class="bar-track"><div class="bar-fill bn" style="width:0%" data-w="3"></div></div></div>
+        <div class="bar-wrap"><div class="bar-track"><div class="bar-fill bv" style="width:0%" data-w="100"></div></div></div>
+        <div class="bar-vals"><span class="vn">~0.5%</span><span class="vv">19.8%</span></div>
       </div>
+
       <div class="metric-row">
-        <div style="display:flex;justify-content:space-between;margin-bottom:5px"><div class="metric-label">EBITDA 2024</div><span class="winner-badge w-nemak">↑ Nemak</span></div>
-        <div class="bar-track"><div class="bar-fill bar-nemak" style="width:100%"></div></div>
-        <div class="bar-track"><div class="bar-fill bar-vitro" style="width:6%"></div></div>
-        <div style="display:flex;justify-content:space-between"><span class="bar-val val-nemak">US$633M</span><span class="bar-val val-vitro">US$37M</span></div>
-      </div>
-      <div class="insight-takeaway">
-        <p><strong>The Bottom Line:</strong> Vitro gana en calidad de balance y retorno sobre capital. Nemak gana en escala. El nearshoring favorece a ambas, pero de formas muy distintas.</p>
+        <div class="metric-header"><span class="metric-name">Contratos nuevos 2024</span><span class="metric-winner wn">↑ Nemak</span></div>
+        <div class="bar-wrap"><div class="bar-track"><div class="bar-fill bn" style="width:0%" data-w="100"></div></div></div>
+        <div class="bar-wrap"><div class="bar-track"><div class="bar-fill bv" style="width:0%" data-w="0"></div></div></div>
+        <div class="bar-vals"><span class="vn">US$460M</span><span class="vv">—</span></div>
       </div>
     </div>
   </div>
-  <div class="subscribe-strip" id="suscribirse">
-    <div><h3>Recibe el proximo Insight</h3><p>Analisis financiero quincenal. Sin spam. Solo numeros que importan.</p></div>
-    <div class="subscribe-form">
-      <input type="email" placeholder="tu@empresa.com">
-      <button onclick="var i=this.previousElementSibling;if(i.value&&i.value.includes('@')){this.textContent='Suscrito ✓';this.style.background='#1E9980';i.disabled=true;this.disabled=true;}else{i.style.borderColor='#ef5350';setTimeout(()=>i.style.borderColor='',2000);}">Suscribirme</button>
+
+  <!-- SCOREBOARD -->
+  <div class="scoreboard">
+    <div class="score-header">
+      <span>Metrica</span>
+      <span style="color:var(--nemak)">NEMAK</span>
+      <span style="color:var(--vitro)">VITRO</span>
+    </div>
+    <div class="score-row"><div class="score-metric">Ingresos 2024</div><div class="score-val win" style="color:var(--nemak)">US$4,907M</div><div class="score-val" style="color:var(--vitro)">US$282M</div></div>
+    <div class="score-row"><div class="score-metric">EBITDA 2024</div><div class="score-val win" style="color:var(--nemak)">US$633M</div><div class="score-val" style="color:var(--vitro)">US$37M</div></div>
+    <div class="score-row"><div class="score-metric">Margen bruto</div><div class="score-val" style="color:var(--nemak)">~15%</div><div class="score-val win" style="color:var(--vitro)">40.7%</div></div>
+    <div class="score-row"><div class="score-metric">Margen neto</div><div class="score-val" style="color:var(--nemak)">0.5%</div><div class="score-val win" style="color:var(--vitro)">~46%*</div></div>
+    <div class="score-row"><div class="score-metric">Deuda neta</div><div class="score-val" style="color:var(--nemak)">US$1,532M</div><div class="score-val win" style="color:var(--vitro)">US$81M</div></div>
+    <div class="score-row"><div class="score-metric">Deuda / EBITDA</div><div class="score-val" style="color:var(--nemak)">2.4x</div><div class="score-val win" style="color:var(--vitro)">2.2x</div></div>
+    <div class="score-row"><div class="score-metric">ROE</div><div class="score-val" style="color:var(--nemak)">~0.5%</div><div class="score-val win" style="color:var(--vitro)">19.8%</div></div>
+    <div class="score-row"><div class="score-metric">Empleados</div><div class="score-val win" style="color:var(--nemak)">~23,000</div><div class="score-val" style="color:var(--vitro)">~1,460</div></div>
+    <div class="score-row"><div class="score-metric">Plantas</div><div class="score-val win" style="color:var(--nemak)">40 en 14 paises</div><div class="score-val" style="color:var(--vitro)">MX y EEUU</div></div>
+    <div class="score-row"><div class="score-metric">Exposicion nearshoring</div><div class="score-val" style="color:var(--nemak)">Indirecta</div><div class="score-val win" style="color:var(--vitro)">Directa</div></div>
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-top:.5rem;font-family:'JetBrains Mono',monospace;">*Margen neto Vitro incluye efecto de revaluacion de propiedades. Cifras con base en reportes BMV y TTM disponibles.</p>
+</section>
+
+<!-- BOTTOM LINE -->
+<section class="bottom" id="bottom-line">
+  <div class="sec-label">// The Bottom Line</div>
+  <h2 class="sec-title">Quien esta mejor posicionado?</h2>
+  <p class="sec-sub" style="margin-bottom:0">No es una respuesta simple. Depende de lo que busques — y de lo que tu empresa puede aprender de cada una.</p>
+
+  <div class="bl-grid">
+    <div class="bl-card">
+      <div class="bl-icon">🏭</div>
+      <div class="bl-audience">Director de empresa proveedora automotriz</div>
+      <div class="bl-title">Revisa tu estructura de capital antes de que cambie la industria</div>
+      <p class="bl-text">Nemak ensenha que margenes ajustados con deuda alta son una combinacion peligrosa cuando el mercado cambia. El riesgo no es el tamano — es la flexibilidad financiera para aguantar la transicion.</p>
+    </div>
+    <div class="bl-card">
+      <div class="bl-icon">📊</div>
+      <div class="bl-audience">Inversionista o analista financiero</div>
+      <div class="bl-title">Vitro tiene algo que el mercado subestima</div>
+      <p class="bl-text">Balance limpio, margenes brutos de clase mundial, exposicion directa al nearshoring sin los riesgos VE. La caida de -38% en su accion el ultimo anho puede ser oportunidad — dependiendo del proximo trimestre de quimicos.</p>
+    </div>
+    <div class="bl-card">
+      <div class="bl-icon">💡</div>
+      <div class="bl-audience">Director general o CFO de una PyME</div>
+      <div class="bl-title">El DuPont lo explica todo</div>
+      <p class="bl-text">Vitro tiene un ROE 40x mayor que Nemak no porque venda mas, sino porque usa mejor su capital. La rotacion de activos y el apalancamiento importan tanto como el margen. Conoces tu ROE descompuesto?</p>
+    </div>
+  </div>
+
+  <div class="takeaway-box">
+    <p><strong>La manufactura mexicana vive su momento mas interesante en decadas.</strong> El nearshoring esta llegando, pero no todas las empresas lo van a aprovechar igual. La diferencia entre las que ganen y las que pierdan estara en una sola cosa: la salud financiera para aguantar la transicion. ¿Sabes como estan las metricas de tu empresa hoy?</p>
+  </div>
+
+  <div class="subscribe-strip">
+    <div><h3>Recibe el proximo Insight</h3><p>Analisis financiero quincenal de empresas mexicanas. Sin spam. Solo numeros que importan.</p></div>
+    <div class="sub-form">
+      <input type="email" id="sub-email" placeholder="tu@empresa.com">
+      <button id="sub-btn" onclick="doSub()">Suscribirme</button>
     </div>
   </div>
 </section>
 
+<!-- POR QUE TAXNFIN -->
 <section class="why" id="por-que">
-  <div class="section-label">// Por que TaxnFin</div>
-  <h2 class="section-title">Disenado por CFOs, para CFOs</h2>
-  <p class="section-sub">Con experiencia real en finanzas corporativas y regulacion fiscal mexicana. No es una herramienta generica — es infraestructura financiera hecha para Mexico.</p>
+  <div class="sec-label">// Por que TaxnFin</div>
+  <h2 class="sec-title">Las mismas metricas, para tu empresa</h2>
+  <p class="sec-sub">Todo lo que analizamos aqui — EBITDA, margen bruto, ROE DuPont, deuda neta, cobertura de intereses — TaxnFin lo calcula automaticamente desde tus estados financieros reales.</p>
   <div class="why-grid">
-    <div class="why-item"><div class="why-icon">🇲🇽</div><div class="why-title">100% enfocado en Mexico</div><p class="why-desc">SAT, CFDI, LISR, IVA, ISR, AML — alineado con la regulacion fiscal y financiera mexicana vigente. Contalink, Alegra y SAT integrados nativamente.</p></div>
-    <div class="why-item"><div class="why-icon">⚡</div><div class="why-title">Setup en minutos</div><p class="why-desc">Sin implementaciones largas. Conecta tu contabilidad y opera desde el primer dia. Tus datos en tiempo real, sin hojas de calculo manuales.</p></div>
-    <div class="why-item"><div class="why-icon">🤖</div><div class="why-title">IA Ejecutiva integrada</div><p class="why-desc">Resumen ejecutivo generado con IA desde tus datos reales. Presenta al consejo sin preparar presentaciones — la plataforma lo hace por ti.</p></div>
-    <div class="why-item"><div class="why-icon">🔒</div><div class="why-title">Datos seguros</div><p class="why-desc">Infraestructura en la nube con encriptacion de extremo a extremo. Tu informacion financiera siempre protegida.</p></div>
+    <div class="why-item"><div class="why-icon">🇲🇽</div><div class="why-title">100% enfocado en Mexico</div><p class="why-desc">SAT, CFDI, LISR, IVA, ISR, AML. Contalink, Alegra y SAT integrados nativamente. No es una herramienta generica — es infraestructura financiera hecha para Mexico.</p></div>
+    <div class="why-item"><div class="why-icon">⚡</div><div class="why-title">Sin Excel, sin formulas manuales</div><p class="why-desc">Conecta tu contabilidad una vez. TaxnFin calcula tus +50 metricas financieras en tiempo real y las presenta como en la bolsa — listas para el consejo.</p></div>
+    <div class="why-item"><div class="why-icon">🤖</div><div class="why-title">IA Ejecutiva integrada</div><p class="why-desc">Resumen ejecutivo generado con IA desde tus datos reales. Cashflow a 13 semanas, escenarios pesimista/base/optimista, alertas automaticas de KPIs criticos.</p></div>
+    <div class="why-item"><div class="why-icon">🔒</div><div class="why-title">Datos seguros</div><p class="why-desc">Infraestructura en la nube con encriptacion de extremo a extremo. Tu informacion financiera siempre protegida. MongoDB Atlas + Railway.</p></div>
   </div>
 </section>
 
+<!-- CTA FINAL -->
 <section class="cta-final">
-  <div class="section-label">// Empieza hoy</div>
+  <div class="sec-label">// Empieza hoy</div>
   <h2>Listo para ver tus finanzas como en la bolsa?</h2>
   <p>Agenda una demo personalizada. Te mostramos como TaxnFin se adapta a tu empresa en menos de 30 minutos.</p>
   <div class="cta-btns">
@@ -319,16 +470,45 @@ footer { background: var(--navy-mid); border-top: 1px solid var(--border); paddi
 </section>
 
 <footer>
-  <div class="footer-logo">Taxn<span>fin</span></div>
-  <div class="footer-links">
+  <div class="foot-logo">Taxn<span>fin</span></div>
+  <div class="foot-links">
     <a href="https://cashflow.taxnfin.com">Cashflow</a>
     <a href="https://donatariasat.taxnfin.com">DonatariaSAT</a>
     <a href="#insights">Insights</a>
     <a href="mailto:kvillafuerte@taxnfin.com">Contacto</a>
   </div>
-  <div class="footer-copy">2026 TaxnFin · Monterrey, N.L.</div>
+  <div class="foot-copy">2026 TaxnFin · Monterrey, N.L. · Todos los derechos reservados.</div>
 </footer>
 
+<script>
+// Animate bars on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.querySelectorAll('.bar-fill[data-w]').forEach(bar => {
+        bar.style.width = bar.dataset.w + '%';
+      });
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('.vs-card').forEach(el => observer.observe(el));
+
+function doSub() {
+  const input = document.getElementById('sub-email');
+  const btn = document.getElementById('sub-btn');
+  if (!input.value || !input.value.includes('@')) {
+    input.style.borderColor = '#ef5350';
+    setTimeout(() => input.style.borderColor = '', 2000);
+    return;
+  }
+  btn.textContent = 'Suscrito!';
+  btn.style.background = '#1E9980';
+  input.disabled = true;
+  btn.disabled = true;
+}
+</script>
 </body>
 </html>"""
 
@@ -350,7 +530,7 @@ except Exception:
     sha = None
     print("Archivo nuevo.")
 
-payload = {"message": "feat: nueva landing con TaxnFin Insights Nemak vs Vitro", "content": content_b64}
+payload = {"message": "feat: landing v2 con Insights completo Nemak vs Vitro + graficas", "content": content_b64}
 if sha:
     payload["sha"] = sha
 
@@ -358,6 +538,6 @@ print("Subiendo index.html...")
 try:
     result = api_call(API, method="PUT", data=payload)
     print(f"\nListo! Commit: {result['commit']['sha'][:12]}")
-    print("Vercel desplegara en ~30 segundos en: https://taxnfin.com")
+    print("Vercel desplegara en ~30 segundos: https://taxnfin.com")
 except Exception as e:
     print(f"Error: {e}")
