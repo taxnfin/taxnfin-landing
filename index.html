@@ -1,428 +1,55 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TaxnFin — Suite Financiera Empresarial</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+import urllib.request
+import json
+import base64
+import os
 
-:root {
-  --navy: #080f1e;
-  --navy2: #0c1829;
-  --accent: #00c4ff;
-  --accent2: #00e5b0;
-  --white: #ffffff;
-  --gray: #6b7f96;
-  --gray2: #a0b0c0;
+# ── CONFIGURA AQUÍ ──────────────────────────────
+GITHUB_TOKEN = "TU_TOKEN_AQUI"
+REPO = "taxnfin/taxnfin-landing"
+FILE_PATH = "index.html"
+LOCAL_FILE = os.path.join(os.path.expanduser("~"), "Downloads", "taxnfin_landing.html")
+# ────────────────────────────────────────────────
+
+API = f"https://api.github.com/repos/{REPO}/contents/{FILE_PATH}"
+HEADERS = {
+    "Authorization": f"token {GITHUB_TOKEN}",
+    "Accept": "application/vnd.github.v3+json",
+    "Content-Type": "application/json"
 }
 
-html { scroll-behavior: smooth; }
-body { font-family: 'Inter', sans-serif; background: var(--navy); color: var(--white); overflow-x: hidden; }
+def api_call(url, method="GET", data=None):
+    req = urllib.request.Request(url, headers=HEADERS, method=method)
+    if data:
+        req.data = json.dumps(data).encode()
+    with urllib.request.urlopen(req) as r:
+        return json.loads(r.read())
 
-/* NAV */
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  padding: 20px 72px;
-  display: flex; align-items: center; justify-content: space-between;
-  background: rgba(8,15,30,0.7);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-.logo svg { width: 32px; height: 32px; }
-.logo-text { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: -0.3px; }
-.logo-text span { color: var(--accent); }
-.nav-links { display: flex; gap: 36px; list-style: none; }
-.nav-links a { color: rgba(255,255,255,0.55); text-decoration: none; font-size: 13.5px; font-weight: 400; transition: color .2s; letter-spacing: 0.01em; }
-.nav-links a:hover { color: var(--white); }
-.nav-cta {
-  padding: 9px 22px; border-radius: 8px;
-  background: var(--accent); color: var(--navy);
-  font-weight: 600; font-size: 13.5px; text-decoration: none;
-  transition: opacity .2s; letter-spacing: 0.01em;
-}
-.nav-cta:hover { opacity: 0.85; }
+# 1. Leer el HTML local
+with open(LOCAL_FILE, "rb") as f:
+    content_b64 = base64.b64encode(f.read()).decode()
 
-/* HERO */
-.hero {
-  height: 100vh; min-height: 680px;
-  display: flex; align-items: center;
-  position: relative; overflow: hidden;
-  padding: 0 72px;
-}
-.hero-photo {
-  position: absolute; inset: 0;
-  background: url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1920&q=85') center/cover no-repeat;
-}
-.hero-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(105deg, rgba(8,15,30,0.97) 0%, rgba(8,15,30,0.88) 45%, rgba(8,15,30,0.4) 100%);
-}
-.hero-content { position: relative; z-index: 2; max-width: 560px; }
+# 2. Obtener SHA actual del archivo
+print("Obteniendo SHA actual...")
+try:
+    current = api_call(API)
+    sha = current["sha"]
+    print(f"SHA encontrado: {sha[:12]}...")
+except Exception:
+    sha = None
+    print("Archivo nuevo, no tiene SHA previo.")
 
-.hero-eyebrow {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-size: 11.5px; font-weight: 500; letter-spacing: 0.12em;
-  text-transform: uppercase; color: var(--accent);
-  margin-bottom: 28px;
+# 3. Subir
+payload = {
+    "message": "feat: landing redesign con TaxnFin Insights - Nemak vs Vitro",
+    "content": content_b64,
 }
-.hero-eyebrow::before {
-  content: ''; width: 6px; height: 6px; border-radius: 50%;
-  background: var(--accent); animation: blink 2s infinite;
-}
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+if sha:
+    payload["sha"] = sha
 
-.hero h1 {
-  font-family: 'Sora', sans-serif;
-  font-size: clamp(2.2rem, 4.5vw, 3.4rem);
-  font-weight: 800; line-height: 1.08;
-  letter-spacing: -0.02em;
-  margin-bottom: 20px;
-}
-.hero h1 em {
-  font-style: normal;
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-}
-.hero p {
-  font-size: 16px; line-height: 1.75;
-  color: rgba(255,255,255,0.5);
-  margin-bottom: 40px; font-weight: 300;
-}
-.hero-actions { display: flex; gap: 12px; }
-.btn-main {
-  padding: 13px 28px; border-radius: 8px;
-  background: var(--accent); color: var(--navy);
-  font-weight: 600; font-size: 14px; text-decoration: none;
-  transition: transform .2s, box-shadow .2s;
-}
-.btn-main:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,196,255,0.3); }
-.btn-ghost {
-  padding: 13px 28px; border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.7); font-size: 14px;
-  text-decoration: none; transition: border-color .2s, color .2s;
-}
-.btn-ghost:hover { border-color: rgba(255,255,255,0.4); color: var(--white); }
-
-.hero-scroll {
-  position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
-  z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px;
-  color: rgba(255,255,255,0.25); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-  animation: float 3s ease-in-out infinite;
-}
-@keyframes float { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
-.scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, rgba(255,255,255,0.2), transparent); }
-
-/* PRODUCTS */
-.products {
-  padding: 110px 72px;
-  background: var(--navy2);
-}
-.eyebrow {
-  font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--accent); margin-bottom: 14px;
-}
-.section-h {
-  font-family: 'Sora', sans-serif;
-  font-size: clamp(1.6rem, 2.8vw, 2.2rem);
-  font-weight: 700; letter-spacing: -0.02em;
-  margin-bottom: 8px;
-}
-.section-p { color: var(--gray2); font-size: 15px; font-weight: 300; margin-bottom: 60px; }
-
-.grid {
-  display: grid; grid-template-columns: repeat(2, 1fr);
-  gap: 16px; max-width: 960px;
-}
-.card {
-  border-radius: 16px;
-  border: 1px solid rgba(255,255,255,0.06);
-  background: rgba(255,255,255,0.025);
-  padding: 32px;
-  transition: border-color .25s, background .25s, transform .25s;
-  text-decoration: none; color: inherit; display: block;
-  position: relative; overflow: hidden;
-}
-.card::before {
-  content: ''; position: absolute;
-  top: 0; left: 0; right: 0; height: 1px;
-  opacity: 0; transition: opacity .25s;
-}
-.card:hover { border-color: rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); transform: translateY(-3px); }
-.card:hover::before { opacity: 1; }
-.card.disabled { cursor: default; }
-.card.disabled:hover { transform: none; border-color: rgba(255,255,255,0.06); background: rgba(255,255,255,0.025); }
-
-.card-cf::before { background: linear-gradient(90deg, transparent, var(--accent), transparent); }
-.card-do::before { background: linear-gradient(90deg, transparent, var(--accent2), transparent); }
-.card-cr::before { background: linear-gradient(90deg, transparent, #a78bfa, transparent); }
-.card-am::before { background: linear-gradient(90deg, transparent, #fbbf24, transparent); }
-
-.card-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
-.card-icon { font-size: 22px; }
-.badge {
-  font-size: 10.5px; font-weight: 600; padding: 3px 10px;
-  border-radius: 100px; letter-spacing: 0.04em;
-}
-.badge-live { color: var(--accent2); background: rgba(0,229,176,0.1); border: 1px solid rgba(0,229,176,0.2); }
-.badge-soon { color: var(--gray); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); }
-
-.card-title { font-family: 'Sora', sans-serif; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
-.card-desc { font-size: 13.5px; color: var(--gray2); line-height: 1.65; margin-bottom: 20px; font-weight: 300; }
-.card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 22px; }
-.tag {
-  font-size: 11.5px; padding: 3px 10px; border-radius: 100px;
-  background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.45);
-  border: 1px solid rgba(255,255,255,0.06);
-}
-.card-link { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
-.link-live { color: var(--accent); }
-.link-soon { color: var(--gray); }
-
-/* STATS */
-.stats {
-  padding: 70px 72px;
-  background: var(--navy);
-  border-top: 1px solid rgba(255,255,255,0.04);
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  display: flex; align-items: center; justify-content: space-between;
-  max-width: 100%; gap: 24px;
-}
-.stat { text-align: center; flex: 1; }
-.stat-n {
-  font-family: 'Sora', sans-serif; font-size: 2.4rem; font-weight: 800;
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  margin-bottom: 6px;
-}
-.stat-l { font-size: 12.5px; color: var(--gray); font-weight: 400; }
-.stat-div { width: 1px; height: 48px; background: rgba(255,255,255,0.06); }
-
-/* WHY */
-.why { padding: 110px 72px; background: var(--navy2); }
-.why-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; max-width: 960px; margin-top: 52px; }
-.why-card {
-  padding: 28px; border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.05);
-  background: rgba(255,255,255,0.02);
-}
-.why-icon { font-size: 26px; margin-bottom: 14px; }
-.why-t { font-family: 'Sora', sans-serif; font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; }
-.why-d { font-size: 13px; color: var(--gray2); line-height: 1.65; font-weight: 300; }
-
-/* CTA */
-.cta {
-  padding: 110px 72px; text-align: center;
-  background: var(--navy);
-  position: relative; overflow: hidden;
-}
-.cta-blob {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  width: 500px; height: 300px; border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(0,196,255,0.07) 0%, transparent 70%);
-  pointer-events: none;
-}
-.cta h2 {
-  font-family: 'Sora', sans-serif;
-  font-size: clamp(1.6rem, 2.8vw, 2.2rem);
-  font-weight: 700; letter-spacing: -0.02em;
-  margin-bottom: 12px; position: relative;
-}
-.cta p { color: var(--gray2); font-size: 15px; margin-bottom: 36px; font-weight: 300; position: relative; }
-.cta-btns { display: flex; gap: 12px; justify-content: center; position: relative; }
-
-/* FOOTER */
-footer {
-  padding: 36px 72px;
-  border-top: 1px solid rgba(255,255,255,0.05);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.footer-logo { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 15px; color: rgba(255,255,255,0.6); }
-.footer-logo span { color: var(--accent); }
-.footer-links { display: flex; gap: 24px; list-style: none; }
-.footer-links a { color: var(--gray); text-decoration: none; font-size: 12.5px; transition: color .2s; }
-.footer-links a:hover { color: var(--white); }
-.footer-copy { font-size: 12px; color: var(--gray); }
-
-@media(max-width:768px){
-  nav{padding:16px 20px;} .nav-links{display:none;}
-  .hero{padding:0 24px;} .products{padding:70px 24px;}
-  .grid{grid-template-columns:1fr;}
-  .stats{padding:48px 24px; flex-wrap:wrap;} .stat-div{display:none;}
-  .why{padding:70px 24px;} .why-grid{grid-template-columns:1fr;}
-  .cta{padding:70px 24px;} .cta-btns{flex-direction:column;align-items:center;}
-  footer{padding:28px 24px;flex-direction:column;gap:16px;text-align:center;}
-}
-</style>
-</head>
-<body>
-
-<nav>
-  <a href="#" class="logo">
-    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="32" height="32" rx="9" fill="#0f2040"/>
-      <rect x="6" y="20" width="3.5" height="6" rx="1" fill="white" opacity="0.8"/>
-      <rect x="11.5" y="15" width="3.5" height="11" rx="1" fill="white" opacity="0.8"/>
-      <rect x="17" y="10" width="3.5" height="16" rx="1" fill="white" opacity="0.8"/>
-      <rect x="22.5" y="13" width="3.5" height="13" rx="1" fill="white" opacity="0.8"/>
-      <polyline points="7.75,18 13.25,13 18.75,8 24.25,11" stroke="#00e5b0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-      <circle cx="24.25" cy="11" r="1.8" fill="#00e5b0"/>
-    </svg>
-    <span class="logo-text">Taxn<span>Fin</span></span>
-  </a>
-  <ul class="nav-links">
-    <li><a href="#productos">Productos</a></li>
-    <li><a href="#por-que">Por qué TaxnFin</a></li>
-    <li><a href="#">Precios</a></li>
-    <li><a href="mailto:kvillafuerte@taxnfin.com">Contacto</a></li>
-  </ul>
-  <a href="https://cashflow.taxnfin.com" class="nav-cta">Acceder</a>
-</nav>
-
-<section class="hero">
-  <div class="hero-photo"></div>
-  <div class="hero-overlay"></div>
-  <div class="hero-content">
-    <div class="hero-eyebrow">Suite CFO Digital · México</div>
-    <h1>Finanzas empresariales con <em>inteligencia</em></h1>
-    <p>TaxnFin es la plataforma para directores financieros que necesitan control real — flujo de efectivo, cumplimiento fiscal, CRM y materialidad AML en un solo lugar.</p>
-    <div class="hero-actions">
-      <a href="#productos" class="btn-main">Ver productos →</a>
-      <a href="mailto:kvillafuerte@taxnfin.com" class="btn-ghost">Solicitar demo</a>
-    </div>
-  </div>
-  <div class="hero-scroll">
-    <div class="scroll-line"></div>
-    scroll
-  </div>
-</section>
-
-<div class="stats">
-  <div class="stat"><div class="stat-n">4</div><div class="stat-l">Productos en suite</div></div>
-  <div class="stat-div"></div>
-  <div class="stat"><div class="stat-n">13S</div><div class="stat-l">Rolling cashflow</div></div>
-  <div class="stat-div"></div>
-  <div class="stat"><div class="stat-n">100%</div><div class="stat-l">SAT compliance</div></div>
-  <div class="stat-div"></div>
-  <div class="stat"><div class="stat-n">MX</div><div class="stat-l">Enfocado en México</div></div>
-</div>
-
-<section class="products" id="productos">
-  <div class="eyebrow">Nuestra suite</div>
-  <div class="section-h">Una plataforma, cuatro soluciones</div>
-  <div class="section-p">Cada producto resuelve un problema crítico de tu empresa.</div>
-
-  <div class="grid">
-    <a href="https://cashflow.taxnfin.com" class="card card-cf">
-      <div class="card-head">
-        <div class="card-icon">💰</div>
-        <span class="badge badge-live">● En vivo</span>
-      </div>
-      <div class="card-title">TaxnFin Cashflow</div>
-      <div class="card-desc">Proyecciones de flujo de efectivo a 13 semanas rolling. Anticipa problemas de liquidez antes de que ocurran. Multimoneda y multi-empresa.</div>
-      <div class="card-tags">
-        <span class="tag">13 semanas rolling</span>
-        <span class="tag">Multimoneda</span>
-        <span class="tag">Alertas</span>
-        <span class="tag">Dashboard ejecutivo</span>
-      </div>
-      <div class="card-link link-live">Acceder →</div>
-    </a>
-
-    <a href="https://donatariasat.taxnfin.com" class="card card-do">
-      <div class="card-head">
-        <div class="card-icon">🏛️</div>
-        <span class="badge badge-live">● En vivo</span>
-      </div>
-      <div class="card-title">DonatariaSAT</div>
-      <div class="card-desc">Cumplimiento fiscal integral para donatarias autorizadas. Gestiona donantes, emite CFDIs y cumple con el Título III de la LISR.</div>
-      <div class="card-tags">
-        <span class="tag">CFDI donativos</span>
-        <span class="tag">Control 5% admin</span>
-        <span class="tag">Calendario SAT</span>
-        <span class="tag">Módulo PLD</span>
-      </div>
-      <div class="card-link link-live">Acceder →</div>
-    </a>
-
-    <div class="card card-cr disabled">
-      <div class="card-head">
-        <div class="card-icon">📊</div>
-        <span class="badge badge-soon">Próximamente</span>
-      </div>
-      <div class="card-title">CRM / QuotePro</div>
-      <div class="card-desc">CRM con cotizaciones profesionales, pipeline de ventas y costeo integrado para empresas que necesitan control comercial y financiero.</div>
-      <div class="card-tags">
-        <span class="tag">Cotizaciones PDF</span>
-        <span class="tag">Pipeline ventas</span>
-        <span class="tag">Costeo</span>
-      </div>
-      <div class="card-link link-soon">Próximamente</div>
-    </div>
-
-    <div class="card card-am disabled">
-      <div class="card-head">
-        <div class="card-icon">🛡️</div>
-        <span class="badge badge-soon">Próximamente</span>
-      </div>
-      <div class="card-title">AML Materialidad 360</div>
-      <div class="card-desc">Materialidad fiscal y análisis de riesgo AML. Validación RFC SAT, reportes de cumplimiento y escenarios de riesgo para actividades vulnerables.</div>
-      <div class="card-tags">
-        <span class="tag">Validación RFC</span>
-        <span class="tag">Compliance</span>
-        <span class="tag">Análisis de riesgo</span>
-      </div>
-      <div class="card-link link-soon">Próximamente</div>
-    </div>
-  </div>
-</section>
-
-<section class="why" id="por-que">
-  <div class="eyebrow">Por qué TaxnFin</div>
-  <div class="section-h">Diseñado por CFOs, para CFOs</div>
-  <div class="section-p">Con experiencia real en finanzas corporativas y regulación fiscal mexicana.</div>
-  <div class="why-grid">
-    <div class="why-card">
-      <div class="why-icon">🇲🇽</div>
-      <div class="why-t">100% enfocado en México</div>
-      <div class="why-d">SAT, CFDI, LISR, AML — alineado con la regulación fiscal y financiera mexicana vigente.</div>
-    </div>
-    <div class="why-card">
-      <div class="why-icon">⚡</div>
-      <div class="why-t">Setup en minutos</div>
-      <div class="why-d">Sin implementaciones largas. Tu equipo opera el sistema desde el primer día sin capacitación técnica.</div>
-    </div>
-    <div class="why-card">
-      <div class="why-icon">🔒</div>
-      <div class="why-t">Datos seguros</div>
-      <div class="why-d">Infraestructura en la nube con encriptación de extremo a extremo. Tu información financiera siempre protegida.</div>
-    </div>
-  </div>
-</section>
-
-<section class="cta">
-  <div class="cta-blob"></div>
-  <h2>¿Listo para tomar el control financiero?</h2>
-  <p>Agenda una demo personalizada. Te mostramos cómo TaxnFin se adapta a tu empresa.</p>
-  <div class="cta-btns">
-    <a href="https://cashflow.taxnfin.com" class="btn-main">Empezar con Cashflow →</a>
-    <a href="mailto:kvillafuerte@taxnfin.com" class="btn-ghost">Agendar demo</a>
-  </div>
-</section>
-
-<footer>
-  <div class="footer-logo">Taxn<span>Fin</span></div>
-  <ul class="footer-links">
-    <li><a href="https://cashflow.taxnfin.com">Cashflow</a></li>
-    <li><a href="https://donatariasat.taxnfin.com">DonatariaSAT</a></li>
-    <li><a href="#">Precios</a></li>
-    <li><a href="mailto:kvillafuerte@taxnfin.com">Contacto</a></li>
-  </ul>
-  <div class="footer-copy">© 2026 TaxnFin. Todos los derechos reservados.</div>
-</footer>
-
-</body>
-</html>
+print("Subiendo index.html...")
+try:
+    result = api_call(API, method="PUT", data=payload)
+    print(f"\n✅ Listo! Commit: {result['commit']['sha'][:12]}")
+    print(f"🌐 Vercel desplegará en ~30 segundos en: https://taxnfin.com")
+except Exception as e:
+    print(f"❌ Error: {e}")
