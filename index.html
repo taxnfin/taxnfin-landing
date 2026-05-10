@@ -1,22 +1,4 @@
- HTML
-Copiar
-
-import urllib.request
-import json
-import base64
- 
-GITHUB_TOKEN = "TU_TOKEN_AQUI"
-REPO = "taxnfin/taxnfin-landing"
-FILE_PATH = "index.html"
- 
-API = f"https://api.github.com/repos/{REPO}/contents/{FILE_PATH}"
-HEADERS = {
-    "Authorization": f"token {GITHUB_TOKEN}",
-    "Accept": "application/vnd.github.v3+json",
-    "Content-Type": "application/json"
-}
- 
-HTML = r"""<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -532,34 +514,4 @@ async function doSub() {
 }
 </script>
 </body>
-</html>"""
- 
-content_b64 = base64.b64encode(HTML.encode('utf-8')).decode()
- 
-def api_call(url, method="GET", data=None):
-    req = urllib.request.Request(url, headers=HEADERS, method=method)
-    if data:
-        req.data = json.dumps(data).encode()
-    with urllib.request.urlopen(req) as r:
-        return json.loads(r.read())
- 
-print("Obteniendo SHA actual...")
-try:
-    current = api_call(API)
-    sha = current["sha"]
-    print(f"SHA: {sha[:12]}...")
-except Exception:
-    sha = None
-    print("Archivo nuevo.")
- 
-payload = {"message": "feat: landing v2 con Insights completo Nemak vs Vitro + graficas", "content": content_b64}
-if sha:
-    payload["sha"] = sha
- 
-print("Subiendo index.html...")
-try:
-    result = api_call(API, method="PUT", data=payload)
-    print(f"\nListo! Commit: {result['commit']['sha'][:12]}")
-    print("Vercel desplegara en ~30 segundos: https://taxnfin.com")
-except Exception as e:
-    print(f"Error: {e}")
+</html>
